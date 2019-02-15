@@ -1,3 +1,4 @@
+import { Gen } from './gen';
 
 function genWorklet({ name, parameters, onInit, onMessage, onProcess }) {
   const parameterDefinition = JSON.stringify(parameters.map(({ name, defaultValue }) => ({ name, defaultValue })));
@@ -24,9 +25,25 @@ function genWorklet({ name, parameters, onInit, onMessage, onProcess }) {
   return new Blob([code], { type: 'application/javascript' });
 }
 
-export default function (props) {
+export default function (fn) {
   const name = `worklet_${Math.random().toString(36).substring(7)}`;
-  const workletUrl = URL.createObjectURL(genWorklet({ ...props, name }));
+
+  const gen = new Gen(fn);
+ /*
+
+
+  const workletSrc = genWorklet({
+    name,
+    parameters: [],
+    onInit: null,
+    onMessage: null,
+    onProcess: null
+  });
+
+  console.log(workletSrc);
+
+ 
+  const workletUrl = URL.createObjectURL();
 
   return class extends AudioWorkletNode {
     static get workletUrl() { return workletUrl; }
@@ -35,5 +52,5 @@ export default function (props) {
       super(context, name);
     }
   };
+  */
 }
-

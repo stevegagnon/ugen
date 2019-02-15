@@ -15,13 +15,12 @@ export function accum(increment = 1, reset = 1, { min = 0, max = 1, initialValue
     `;
 
     gen.every(1, `
-      if (${_reset}) { ${_accumulator} = ${min} }
-      else {
-        ${_accumulator} += ${_increment};
-        ${wrap}
-      }
+      ${isNaN(_reset) || _reset ? `if (${_reset}) { ${_accumulator} = ${min} } else {` : ''}
+      ${_accumulator} += ${_increment};
+      ${wrap}
+      ${isNaN(_reset) || _reset ? `}` : ''}
     `);
 
-    return accumulator;
+    return _accumulator;
   }
 }

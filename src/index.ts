@@ -1,17 +1,16 @@
 
-import genlet from './worklet/genlet';
+import genlet from './worklet';
 
-const OurProcessorNode = genlet({
-  samplerate: 44100,
-  step: g => {
-    const frequency = g.param('mouseY', 330)
-    const portamento = g.slide(frequency, 1000)
-    const lfo = g.mul(g.cycle(5), g.param('mouseX', 15))
-    const vibrato = g.add(portamento, lfo)
-    g.play(g.mul(g.cycle(vibrato), .15))
+const OurProcessorNode = genlet(
+  ({ param, mul, add, phasor }) => {
+    const p1 = param('p1');
+    const p2 = param('p2');
+    return mul(phasor(440), mul(p1, add(p2, 40)));
   }
-});
+);
 
+
+/*
 const button = document.createElement('button');
 button.innerText = 'run';
 button.onclick = () => {
@@ -25,8 +24,6 @@ button.onclick = () => {
 document.body.appendChild(button);
 
 
-
-/*
 import gen from './worklet';
 
 const OurProcessorNode = gen({

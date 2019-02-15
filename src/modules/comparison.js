@@ -1,7 +1,7 @@
 function fn1(op) {
   return (...args) => {
     return gen => {
-      const [_a, _b] = gen.prepare(args);
+      const [_a, _b] = gen.prepare(...args);
       return `((${_a} ${op} ${_b}) | 0)`;
     }
   }
@@ -10,7 +10,7 @@ function fn1(op) {
 function fn2(op) {
   return (...args) => {
     return gen => {
-      const [_a, _b] = gen.prepare(args);
+      const [_a, _b] = gen.prepare(...args);
       return `(${_a} ${op} ${_b} ? ${_a} : 0)`;
     }
   }

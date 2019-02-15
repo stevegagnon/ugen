@@ -1,7 +1,7 @@
 
 export function ifelseif(...args) {
   return gen => {
-    const _args = gen.prepare(args);
+    const _args = gen.prepare(...args);
     const _ifs = [];
     let i = 0;
 

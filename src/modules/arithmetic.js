@@ -1,24 +1,26 @@
 
-function fn(op) {
+function fn(op, reducer) {
   return (...args) => {
     return gen => {
-      const _inputs = gen.prepare(args);
-      let sum = 0;
-      return _inputs.filter(v => {
-          if (!isNaN(v)) {
-            sum += parseFloat(v);
-            return false;
-          }
-          return true;
-        })
-        .push(sum)
-        .join(` ${op} `);
+      const _inputs = gen.prepare(...args);
+      let reduced = null;
+      const filtered = _inputs.filter(v => {
+        if (!isNaN(v)) {
+          reduced = reduced === null ? v : reducer(reduced, v);
+          return false;
+        }
+        return true;
+      });
+      if (reduced !== null) {
+        filtered.push(reduced);
+      }
+      return `( ${filtered.join(` ${op} `)} )`;
     }
   };
 }
 
-export const add = fn('+');
-export const div = fn('/');
-export const mul = fn('*');
-export const sub = fn('-');
-export const mod = fn('%');
+export const add = fn('+', (a, b) => a + b);
+export const div = fn('/', (a, b) => a / b);
+export const mul = fn('*', (a, b) => a * b);
+export const sub = fn('-', (a, b) => a - b);
+export const mod = fn('%', (a, b) => a % b);

@@ -1,7 +1,7 @@
 
 export function and(...args) {
   return gen => {
-    const [_a, _b] = gen.prepare(args);
+    const [_a, _b] = gen.prepare(...args);
     return `((${_a} !== 0 && ${_b} !== 0) | 0)`;
   }
 }

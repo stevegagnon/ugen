@@ -1,16 +1,17 @@
-import { ssd } from './ssd';
 import { sub, add, mul } from './arithmetic';
-import { memo } from './memo';
 
 export function dcblock(a) {
   return gen => {
-    const x1 = ssd();
-    const y1 = ssd();
+    const [_a] = gen.prepare(a);
+    const [_x1, _y1] = gen.lets(0, 0);
 
     //History x1, y1; y = in1 - x1 + y1*0.9997; x1 = in1; y1 = y; out1 = y;
-    const filter = memo(add(sub(in1, x1.out), mul(y1.out, .9997)));
-    x1.in(in1);
-    y1.in(filter);
+    const filter = add(sub(a, _x1), mul(_y1, .9997));
+
+    gen.every(1, `
+      ${_x1} = ${_a};
+      ${_y1} = ${filter};
+    `);
 
     return filter;
   }

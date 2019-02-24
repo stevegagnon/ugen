@@ -1,9 +1,9 @@
-import { Gen } from './gen';
+import { Gen } from './codegen';
 
 export class Trigger {
   _param;
 
-  constructor(private gen: Gen) {
+  constructor(private name: string, private gen: Gen) {
     this._param = gen.lets(0);
   }
 
@@ -11,22 +11,20 @@ export class Trigger {
     return `${this._param} = 1`;
   }
 
-  on(code) {
-    this.gen.every(1, `
-      if (${this._param}) {
-        ${code}
-        ${this.gen.schedule(1, `${this._param} = 0`)}
-      }
+  on(ugen) {
+    const code = typeof ugen === 'function' ? ugen(this.gen) : ugen;
+    this.gen.on(this.name, `
+      ${code || ''}
+      ${this.gen.schedule(1, `${this._param} = 0`)}
     `);
     return this;
   }
 
-  delay(frames, code) {
-    this.gen.every(1, `
-      if (${this._param}) {
-        ${this.gen.schedule(frames, code)};
-        ${this.gen.schedule(1, `${this._param} = 0`)};
-      }
+  delay(frames, ugen) {
+    const code = ugen(this.gen);
+    this.gen.on(this.name, `
+      ${code ? this.gen.schedule(frames, code) : ''};
+      ${this.gen.schedule(1, `${this._param} = 0`)};
     `);
     return this;
   }

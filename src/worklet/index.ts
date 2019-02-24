@@ -1,49 +1,9 @@
-import { Gen } from './gen';
+import codegen from './codegen';
 
-function genWorklet({ name, parameters, onInit, onMessage, onProcess }) {
-  const parameterDefinition = JSON.stringify(parameters.map(({ name, defaultValue }) => ({ name, defaultValue })));
-  const code = `
-    registerProcessor('${name}',
-      class extends AudioWorkletProcessor {
-        static get parameterDescriptors() {
-          return ${parameterDefinition};
-        }
-
-        constructor(options) {
-          super(options);
-          ${onInit ? onInit({ options: 'options' }) : ''}
-          ${onMessage ? `this.port.onmessage = (event) => { ${onMessage({ event: 'event' })} };` : ''}
-        }
-
-        process(inputs, outputs, parameters) {
-          ${onProcess ? onProcess({ inputs: 'inputs', outputs: 'outputs', parameters: 'parameters' }) : 'return true;'}
-        }
-      }
-    );
-  `;
-
-  return new Blob([code], { type: 'application/javascript' });
-}
-
-export default function (fn) {
+export default function (genlet) {
   const name = `worklet_${Math.random().toString(36).substring(7)}`;
-
-  const gen = new Gen(fn);
- /*
-
-
-  const workletSrc = genWorklet({
-    name,
-    parameters: [],
-    onInit: null,
-    onMessage: null,
-    onProcess: null
-  });
-
-  console.log(workletSrc);
-
- 
-  const workletUrl = URL.createObjectURL();
+  const code = codegen(name, genlet);
+  const workletUrl = URL.createObjectURL(code);
 
   return class extends AudioWorkletNode {
     static get workletUrl() { return workletUrl; }
@@ -52,5 +12,4 @@ export default function (fn) {
       super(context, name);
     }
   };
-  */
 }

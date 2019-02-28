@@ -4,7 +4,7 @@ export class Trigger {
   _param;
 
   constructor(private name: string, private gen: Gen) {
-    this._param = gen.lets(0);
+    this._param = gen.declare(0);
   }
 
   trigger() {

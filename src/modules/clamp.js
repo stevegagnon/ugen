@@ -3,7 +3,7 @@
 export function clamp(a, min = -1, max = 1) {
   return gen => {
     const [_a, _min, _max] = gen.prepare(a, min, max);
-    const [_out] = gen.lets(_a);
+    const [_out] = gen.declare(_a);
 
     gen.every(1, `
       ${_out} = ${_a};

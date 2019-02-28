@@ -2,7 +2,7 @@
 export function accum(increment = 1, reset = 1, { min = 0, max = 1, initialValue }) {
   return gen => {
     const [_increment, _reset] = gen.prepare(increment, reset);
-    const [_accumulator] = gen.lets(initialValue || min);
+    const [_accumulator] = gen.declare(initialValue || min);
 
     const wrap = increment > 0 ? `
       if (${_accumulator} > ${max}) {

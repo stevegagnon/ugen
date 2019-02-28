@@ -1,6 +1,6 @@
 
 export function trigger(name) {
   return gen => {
-    return gen.createTrigger(name);
+    return gen.trigger(name);
   }
 }

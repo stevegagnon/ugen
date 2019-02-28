@@ -8,11 +8,11 @@ export interface Gen {
   samplerate: number,
   param(name: string, intial);
   prepare(...args);
-  lets(...args);
+  declare(...args);
   every(frames, ...args);
   schedule(ahead, code);
   on(triggerName, code);
-  createTrigger(name);
+  trigger(name);
   exp(strings, ...exps);
 }
 
@@ -71,7 +71,7 @@ export default function (name, genlet) {
         });
       },
 
-      lets(...args) {
+      declare(...args) {
         return args.map(arg => {
           const label = `memory[${alloc(1)}]`;
           onInit.push(`${label} = ${arg}`);
@@ -98,7 +98,7 @@ export default function (name, genlet) {
         `);
       },
 
-      createTrigger(name) {
+      trigger(name) {
         const trigger = new Trigger(name, createGen('trigger'));
         triggers[name] = trigger;
         return trigger;

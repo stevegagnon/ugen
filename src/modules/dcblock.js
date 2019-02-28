@@ -3,7 +3,7 @@ import { sub, add, mul } from './arithmetic';
 export function dcblock(a) {
   return gen => {
     const [_a] = gen.prepare(a);
-    const [_x1, _y1] = gen.lets(0, 0);
+    const [_x1, _y1] = gen.declare(0, 0);
 
     //History x1, y1; y = in1 - x1 + y1*0.9997; x1 = in1; y1 = y; out1 = y;
     const filter = add(sub(a, _x1), mul(_y1, .9997));

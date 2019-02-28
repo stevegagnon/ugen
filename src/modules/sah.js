@@ -2,7 +2,7 @@
 export function sah(sample, control, threshold = 0) {
   return gen => {
     const [_sample, _control, _threshold] = gen.prepare(sample, control, threshold);
-    const [_held, _previous_control] = gen.lets(_sample, _threshold);
+    const [_held, _previous_control] = gen.declare(_sample, _threshold);
 
     gen.every(1, `
       if (${_control} > ${_threshold} && ${_previous_control} <= ${_threshold}) {

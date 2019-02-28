@@ -2,7 +2,7 @@
 export function counter(increment = 1, min = 0, max = 1, reset = 0, { initialValue = null } = {}) {
   return gen => {
     const [_increment, _reset, _min, _max] = gen.prepare(increment, reset, min, max);
-    const [_accumulator] = gen.lets(initialValue || _min);
+    const [_accumulator] = gen.declare(initialValue || _min);
 
     const wrap = increment > 0 ? `
       if (${_accumulator} > ${_max}) {

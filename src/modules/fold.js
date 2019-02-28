@@ -3,7 +3,7 @@
 export function fold(a, min, max) {
   return gen => {
     const [_a, _min, _max] = gen.prepare(a, min, max);
-    const [_value, _range, _numWraps] = gen.lets(`${_a}`, `${_max} - ${_min}`, 0);
+    const [_value, _range, _numWraps] = gen.declare(`${_a}`, `${_max} - ${_min}`, 0);
 
     gen.every(1, `
       if(${_value} >= ${hi}){

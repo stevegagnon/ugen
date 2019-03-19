@@ -11,5 +11,9 @@ export default function (genlet) {
     constructor(context) {
       super(context, name);
     }
+
+    trigger(name: string) {
+      this.port.postMessage({ type: 'trigger', name });
+    }
   };
 }

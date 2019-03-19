@@ -1,22 +1,12 @@
 
 import { Trigger } from './trigger';
 import modules from '../modules';
+import { Gen } from '../modules/ugen';
 
 type Ugen = (ugen) => any;
 
-export interface Gen {
-  samplerate: number,
-  param(name: string, intial);
-  prepare(...args);
-  declare(...args);
-  every(frames, ...args);
-  schedule(ahead, code);
-  on(triggerName, code);
-  trigger(name);
-  exp(strings, ...exps);
-}
-
 export default function (name, genlet) {
+  let frame = 0;
   let memorySize = 0;
   let onInit = [];
   let onMessage = [];
@@ -47,74 +37,83 @@ export default function (name, genlet) {
   }
 
   function createGen(name): Gen {
-    const gen = {
-      samplerate: 44100,
+    function code(strings: string[], ...exps: any[]) {
+      return gen => {
+        return strings.reduce((a, c, i) => {
+          const e = exps[i] || '';
+          return `${a}${c}${typeof e === 'function' ? e(gen) : e}`;
+        }, '');
+      }
+    }
 
-      param(name: string, defaultValue = 0) {
-        const label = {
-          ugen: () => defaultValue,
-          name: `param_${labelIdx++}`,
-          value: `parameters['${name}'].length === 1 ? parameters['${name}'][0] : parameters['${name}'][i]`
+    function param(name: string, defaultValue = 0) {
+      const label = {
+        ugen: () => defaultValue,
+        name: `param_${labelIdx++}`,
+        value: `parameters['${name}'].length === 1 ? parameters['${name}'][0] : parameters['${name}'][i]`
+      }
+      labels.push(label);
+      parameters.push({ name, defaultValue });
+      return label.name;
+    }
+
+    function prepare(...args) {
+      return args.map(arg => {
+        if (typeof arg === 'function') {
+          return createLabel(arg);
+        } else {
+          return arg;
         }
-        labels.push(label);
-        parameters.push({ name, defaultValue });
-        return label.name;
-      },
+      });
+    }
 
-      prepare(...args) {
-        return args.map(arg => {
-          if (typeof arg === 'function') {
-            return createLabel(arg);
-          } else {
-            return arg;
-          }
-        });
-      },
+    function declare(...args) {
+      return args.map(arg => {
+        const label = `memory[${alloc(1)}]`;
+        onInit.push(`${label} = ${arg}`);
+        return label;
+      });
+    }
 
-      declare(...args) {
-        return args.map(arg => {
-          const label = `memory[${alloc(1)}]`;
-          onInit.push(`${label} = ${arg}`);
-          return label;
-        });
-      },
+    function every(frames, ...args) {
+      return args.map(arg => {
+        const exp = typeof arg === 'function' ? arg(gen) : arg;
+        afterRender.push(frames === 1 ? exp : `if (this.frame % ${frames} === 0) { ${exp} }`);
+      });
+    }
 
-      every(frames, ...args) {
-        return args.map(arg => {
-          const exp = typeof arg === 'function' ? arg(gen) : arg;
-          afterRender.push(frames === 1 ? exp : `if (this.frame % ${frames} === 0) { ${exp} }`);
-        });
-      },
+    function schedule(ahead: number, code: string) {
+      return `this.schedule(${ahead}, () => { ${code} })`;
+    }
 
-      schedule(ahead, code) {
-        return `this.schedule(${ahead}, () => { ${code} })`;
-      },
-
-      on(triggerName, code) {
-        onMessage.push(`
-          if (event.name === '${triggerName}') {
-              ${code}
+    function on(triggerName: string, code) {
+      onMessage.push(`
+          if (event.type === 'trigger' && event.name === '${triggerName}') {
+            ${code}
           }
         `);
-      },
+    }
 
-      trigger(name) {
-        const trigger = new Trigger(name, createGen('trigger'));
-        triggers[name] = trigger;
-        return trigger;
-      },
+    function trigger(name: string) {
+      const trigger = new Trigger(name, createGen('trigger'));
+      triggers[name] = trigger;
+      return trigger;
+    }
 
-      exp(strings, ...exps) {
-        return gen => {
-          return strings.reduce((a, c, i) => {
-            const e = exps[i] || '';
-            return `${a}${c}${typeof e === 'function' ? e(gen) : e}`;
-          }, '');
-        }
-      }
+    return {
+      samplerate: 44100,
+      _frame: '_frame',
+      _buffer: '_buffer',
+      param,
+      prepare,
+      declare,
+      every,
+      schedule,
+      on,
+      trigger,
+      code,
+      alloc
     };
-
-    return gen;
   }
 
   const worker = genlet(Object.assign({},

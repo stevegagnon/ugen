@@ -1,6 +1,6 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
-export function mstosamps(ms: Ugen | number): Ugen {
+export function mstosamps(ms: number | Ugen): Ugen {
   return gen => {
     const [_ms] = gen.prepare(ms);
     if (isNaN(_ms)) {

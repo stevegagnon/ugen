@@ -1,7 +1,7 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../gen';
 
 function fn(op: string, reducer: (a: number, b: number) => number) {
-  return (...args: Array<Ugen | number>): Ugen => {
+  return (...args: (number | Ugen)[]): Ugen => {
     return gen => {
       const _inputs = gen.prepare(...args);
       let reduced = null;

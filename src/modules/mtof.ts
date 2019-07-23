@@ -1,7 +1,7 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function mtof(
-  m: Ugen | number,
+  m: number | Ugen,
   { tuning = 440 }: { tuning?: number }
 ): Ugen {
   return gen => {

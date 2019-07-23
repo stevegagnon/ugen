@@ -1,4 +1,4 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function bang(
   trigger,

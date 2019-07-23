@@ -1,7 +1,7 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 import { sub, add, mul } from './arithmetic';
 
-export function dcblock(a: Ugen | number): Ugen {
+export function dcblock(a: number | Ugen): Ugen {
   return gen => {
     const [_a] = gen.prepare(a);
     const [_x1, _y1] = gen.declare(0, 0);

@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function fold(
-  a: Ugen | number,
-  min: Ugen | number,
-  max: Ugen | number
+  a: number | Ugen,
+  min: number | Ugen,
+  max: number | Ugen
 ): Ugen {
   return gen => {
     const [_a, _min, _max] = gen.prepare(a, min, max);

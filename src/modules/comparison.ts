@@ -1,7 +1,7 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 function fn1(op: string) {
-  return (...args: Array<Ugen | number>): Ugen => {
+  return (...args: (number | Ugen)[]): Ugen => {
     return gen => {
       const [_a, _b] = gen.prepare(...args);
       return `((${_a} ${op} ${_b}) | 0)`;
@@ -10,7 +10,7 @@ function fn1(op: string) {
 }
 
 function fn2(op: string) {
-  return (...args: Array<Ugen | number>): Ugen => {
+  return (...args: (number | Ugen)[]): Ugen => {
     return gen => {
       const [_a, _b] = gen.prepare(...args);
       return `(${_a} ${op} ${_b} ? ${_a} : 0)`;

@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../gen';
 
 export function accum(
-  increment: Ugen | number = 1,
-  reset: Ugen | number = 1,
-  { min = 0, max = 1, initialValue }: { min?: number, max?: number, initialValue: number }
+  increment: number | Ugen = 1,
+  reset: number | Ugen = 1,
+  { min = 0, max = 1, initialValue }: { min?: number, max?: number, initialValue?: number } = {}
 ): Ugen {
   return gen => {
     const [_increment, _reset] = gen.prepare(increment, reset);

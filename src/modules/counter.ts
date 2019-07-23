@@ -1,10 +1,10 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function counter(
-  increment: Ugen | number = 1,
-  min: Ugen | number = 0,
-  max: Ugen | number = 1,
-  reset: Ugen | number = 0,
+  increment: number | Ugen = 1,
+  min: number | Ugen = 0,
+  max: number | Ugen = 1,
+  reset: number | Ugen = 0,
   { initialValue = null }: { initialValue?: number } = {}
 ) {
   return gen => {

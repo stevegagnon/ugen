@@ -1,6 +1,6 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
-export function ifelseif(...args: Array<Ugen | number>): Ugen {
+export function ifelseif(...args: (number | Ugen)[]): Ugen {
   return gen => {
     const _args = gen.prepare(...args);
     const _ifs = [];

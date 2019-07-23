@@ -1,4 +1,4 @@
-import { Gen } from './codegen';
+import Gen from './gen';
 
 export class Trigger {
   _param;

@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function sah(
-  sample: Ugen | number,
-  control: Ugen | number,
-  threshold: Ugen | number = 0
+  sample: number | Ugen,
+  control: number | Ugen,
+  threshold: number | Ugen = 0
 ): Ugen {
   return gen => {
     const [_sample, _control, _threshold] = gen.prepare(sample, control, threshold);

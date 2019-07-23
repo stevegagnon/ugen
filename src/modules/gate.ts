@@ -1,8 +1,8 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function gate(
-  control: Ugen | number,
-  input: Ugen | number,
+  control: number | Ugen,
+  input: number | Ugen,
   { count = 2 }: { count?: number }
 ): Ugen {
   return gen => {

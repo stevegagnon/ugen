@@ -1,4 +1,4 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../gen';
 
 export function param(
   name: string,

@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function wrap(
-  a: Ugen | number,
-  min: Ugen | number = 0,
-  max: Ugen | number = 1
+  a: number | Ugen,
+  min: number | Ugen = 0,
+  max: number | Ugen = 1
 ): Ugen {
   return gen => {
     const [_a, _min, _max] = gen.prepare(a, min, max);
@@ -21,7 +21,7 @@ export function wrap(
     gen.every(1, `
       ${_out} = ${_a};
       if( ${_out} < ${_min} ) ${_out} += ${_diff}
-      else if( ${_out} > ${_max} ) ${_out} -= ${diff}
+      else if( ${_out} > ${_max} ) ${_out} -= ${_diff}
     `);
 
     return _out;

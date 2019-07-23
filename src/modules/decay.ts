@@ -1,4 +1,4 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../gen';
 import { mul } from './arithmetic';
 import { t60 } from './t60';
 

@@ -1,12 +1,12 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 import { sub, add, div } from './arithmetic';
 import { gt } from './comparison';
 import { selector } from './selector';
 
 export function slide(
-  sample: Ugen | number,
-  slideUp: Ugen | number = 1,
-  slideDown: Ugen | number = 1
+  sample: number | Ugen,
+  slideUp: number | Ugen = 1,
+  slideDown: number | Ugen = 1
 ): Ugen {
   return gen => {
     const [_y1] = gen.declare(0);

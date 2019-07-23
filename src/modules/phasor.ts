@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../gen';
 import { accum } from './accum';
 import { mul, div } from './arithmetic';
 
 export function phasor(
-  frequency: Ugen | number = 1,
+  frequency: number | Ugen = 1,
   reset: number = 0,
   { min = 0, max = 1 }: { min?: number, max?: number } = {}
 ): Ugen {

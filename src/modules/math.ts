@@ -1,7 +1,7 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 function fn(fn: string) {
-  return (a: Ugen | number): Ugen => {
+  return (a: number | Ugen): Ugen => {
     return gen => {
       const [_a] = gen.prepare(a);
       return isNaN(_a) ? `Math.${fn}(${_a})` : Math[fn](parseFloat(_a));
@@ -10,7 +10,7 @@ function fn(fn: string) {
 }
 
 function fn2(fn: string) {
-  return (a: Ugen | number, b: Ugen | number): Ugen => {
+  return (a: number | Ugen, b: number | Ugen): Ugen => {
     return gen => {
       const [_a, _b] = gen.prepare(a, b);
       return isNaN(_a) || isNaN(_b) ? `Math.${fn}(${_a}, ${_b})` : Math[fn](parseFloat(_a), parseFloat(_b));

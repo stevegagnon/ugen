@@ -1,9 +1,9 @@
-import { Ugen } from './ugen';
+import { Ugen } from '../ugen';
 
 export function clamp(
-  a: Ugen | number,
-  min: Ugen | number = -1,
-  max: Ugen | number = 1
+  a: number | Ugen,
+  min: number | Ugen = -1,
+  max: number | Ugen = 1
 ): Ugen {
   return gen => {
     const [_a, _min, _max] = gen.prepare(a, min, max);

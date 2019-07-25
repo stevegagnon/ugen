@@ -1,4 +1,4 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function counter(
   increment: number | Ugen = 1,
@@ -7,24 +7,25 @@ export function counter(
   reset: number | Ugen = 0,
   { initialValue = null }: { initialValue?: number } = {}
 ) {
-  return gen => {
-    const [_increment, _reset, _min, _max] = gen.prepare(increment, reset, min, max);
-    const [_accumulator] = gen.declare(initialValue || _min);
+  return ({ declare, code, every }) => {
+    const [accumulator] = declare(initialValue || min);
 
-    const wrap = increment > 0 ? `
-      if (${_accumulator} > ${_max}) {
-        ${_accumulator} -= ${_max} - ${_min};
-      }
-    ` : `
-      if (${_accumulator} < ${_min}) {
-        ${_accumulator} += ${_max} - ${_min};
-      }
-    `;
+    const wrap = increment > 0
+      ? code`
+        if (${accumulator} > ${max}) {
+          ${accumulator} -= ${max} - ${min};
+        }
+      `
+      : code`
+        if (${accumulator} < ${min}) {
+          ${accumulator} += ${max} - ${min};
+        }
+      `;
 
-    gen.every(1, `
-      if (${_reset}) { ${_accumulator} = ${_min} }
+    every(1, code`
+      if (${reset}) { ${accumulator} = ${min} }
       else {
-        ${_accumulator} += ${_increment};
+        ${accumulator} += ${increment};
         ${wrap}
       }
     `);

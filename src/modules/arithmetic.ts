@@ -1,13 +1,12 @@
-import { Ugen } from '../gen';
+import { isUgen, Ugen } from '../gen';
 
 function fn(op: string, reducer: (a: number, b: number) => number) {
   return (...args: (number | Ugen)[]): Ugen => {
-    return gen => {
-      const _inputs = gen.prepare(...args);
+    return ({ code, join }) => {
       let reduced = null;
-      const filtered = _inputs.filter(v => {
-        if (!isNaN(v)) {
-          reduced = reduced === null ? v : reducer(reduced, v);
+      const filtered = args.filter(v => {
+        if (!isUgen(v)) {
+          reduced = reduced === null ? v : reducer(reduced, <number>v);
           return false;
         }
         return true;
@@ -15,7 +14,7 @@ function fn(op: string, reducer: (a: number, b: number) => number) {
       if (reduced !== null) {
         filtered.push(reduced);
       }
-      return `( ${filtered.join(` ${op} `)} )`;
+      return code`( ${join(op, ...filtered)} )`;
     }
   };
 }

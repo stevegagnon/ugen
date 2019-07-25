@@ -2,10 +2,15 @@ import { Trigger } from './trigger';
 
 export type Ugen = (gen: Gen) => any;
 
+export function isUgen(o) {
+  return !isNaN(o);
+}
+
 export interface Gen {
   samplerate: number,
-  _frame: string,
-  _buffer: string;
+  frame: Ugen,
+  buffer: Ugen;
+  input: Ugen,
   param(name: string, intial);
   prepare(...args);
   declare(...args);
@@ -15,6 +20,7 @@ export interface Gen {
   on(triggerName, code);
   trigger(name);
   code(strings, ...exps);
+  join(seperator, ...parts);
 }
 
 export default function () {
@@ -28,6 +34,7 @@ export default function () {
   let triggers: { [key: string]: Trigger } = {};
   let labels: { ugen: Ugen, name: string, value: string }[] = [];
   let labelIdx: number = 1;
+  let resolved: Map<any, any> = new Map();
 
   function createLabel(ugen: Ugen) {
     for (const label of labels) {
@@ -45,6 +52,21 @@ export default function () {
     const offset = memorySize;
     memorySize += size;
     return offset;
+  }
+
+  function resolve(v) {
+    let _v;
+
+    if (resolved.has(v)) {
+      _v = resolved.get(v);
+    } else {
+      switch (typeof v) {
+        case 'function':
+        case 'array': // example: modules/selector
+      }
+    }
+
+    return _v;
   }
 
   function createUgen(name?): Gen {
@@ -111,10 +133,15 @@ export default function () {
       return trigger;
     }
 
+    function join(seperator, ...parts) {
+      
+    }
+
     return {
       samplerate: 44100,
-      _frame: '_frame',
-      _buffer: '_buffer',
+      frame: undefined,
+      buffer: undefined,
+      input: undefined,
       param,
       prepare,
       declare,
@@ -123,7 +150,8 @@ export default function () {
       on,
       trigger,
       code,
-      alloc
+      alloc,
+      join
     };
   }
 

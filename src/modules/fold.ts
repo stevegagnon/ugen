@@ -1,33 +1,32 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function fold(
   a: number | Ugen,
   min: number | Ugen,
   max: number | Ugen
 ): Ugen {
-  return gen => {
-    const [_a, _min, _max] = gen.prepare(a, min, max);
-    const [_value, _range, _numWraps] = gen.declare(`${_a}`, `${_max} - ${_min}`, 0);
+  return ({ declare, every, code }) => {
+    const [value, range, numWraps] = declare(a, code`${max} - ${min}`, 0);
 
-    gen.every(1, `
-      if(${_value} >= ${hi}){
-        ${_value} -= ${_range}
-        if(${_value} >= ${hi}){
-          ${_numWraps} = ((${_value} - ${lo}) / ${_range}) | 0
-          ${_value} -= ${_range} * ${_numWraps}
+    every(1, code`
+      if(${value} >= ${max}){
+        ${value} -= ${range}
+        if(${value} >= ${max}){
+          ${numWraps} = ((${value} - ${min}) / ${range}) | 0
+          ${value} -= ${range} * ${numWraps}
         }
-        ${_numWraps}++
-      } else if(${_value} < ${lo}){
-        ${_value} += ${_range}
-        if(${_value} < ${lo}){
-          ${_numWraps} = ((${_value} - ${lo}) / ${_range}- 1) | 0
-          ${_value} -= ${_range} * ${_numWraps}
+        ${numWraps}++
+      } else if(${value} < ${min}){
+        ${value} += ${range}
+        if(${value} < ${min}){
+          ${numWraps} = ((${value} - ${min}) / ${range}- 1) | 0
+          ${value} -= ${range} * ${numWraps}
         }
-        ${_numWraps}--
+        ${numWraps}--
       }
-      if(${_numWraps} & 1) ${_value} = ${hi} + ${lo} - ${_value}
+      if(${numWraps} & 1) ${value} = ${max} + ${min} - ${value}
     `);
 
-    return _value;
+    return value;
   }
 }

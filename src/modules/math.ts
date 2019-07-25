@@ -1,19 +1,17 @@
-import { Ugen } from '../ugen';
+import { isUgen, Ugen } from '../gen';
 
 function fn(fn: string) {
   return (a: number | Ugen): Ugen => {
-    return gen => {
-      const [_a] = gen.prepare(a);
-      return isNaN(_a) ? `Math.${fn}(${_a})` : Math[fn](parseFloat(_a));
+    return ({ code }) => {
+      return isUgen(a) ? code`Math.${fn}(${a})` : Math[fn](<number>a);
     }
   }
 }
 
 function fn2(fn: string) {
   return (a: number | Ugen, b: number | Ugen): Ugen => {
-    return gen => {
-      const [_a, _b] = gen.prepare(a, b);
-      return isNaN(_a) || isNaN(_b) ? `Math.${fn}(${_a}, ${_b})` : Math[fn](parseFloat(_a), parseFloat(_b));
+    return ({ code }) => {
+      return isUgen(a) || isUgen(b) ? code`Math.${fn}(${a}, ${b})` : Math[fn](<number>a, <number>b);
     }
   }
 }

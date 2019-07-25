@@ -1,4 +1,4 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 import { sub, add, div } from './arithmetic';
 import { gt } from './comparison';
 import { selector } from './selector';
@@ -8,15 +8,15 @@ export function slide(
   slideUp: number | Ugen = 1,
   slideDown: number | Ugen = 1
 ): Ugen {
-  return gen => {
-    const [_y1] = gen.declare(0);
+  return ({ declare, every }) => {
+    const [y1] = declare(0);
 
     //y (n) = y (n-1) + ((x (n) - y (n-1))/slide) 
-    const slideAmount = selector(gt(sample, _y1), slideUp, slideDown)
+    const slideAmount = selector(gt(sample, y1), slideUp, slideDown)
 
-    const filter = add(_y1, div(sub(sample, _y1), slideAmount));
+    const filter = add(y1, div(sub(sample, y1), slideAmount));
 
-    gen.every(1, `${_y1} = ${filter}`);
+    every(1, `${y1} = ${filter}`);
 
     return filter
   }

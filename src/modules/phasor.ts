@@ -1,4 +1,4 @@
-import { Ugen } from '../gen';
+import { isUgen, Ugen } from '../gen';
 import { accum } from './accum';
 import { mul, div } from './arithmetic';
 
@@ -7,17 +7,17 @@ export function phasor(
   reset: number = 0,
   { min = 0, max = 1 }: { min?: number, max?: number } = {}
 ): Ugen {
-  return gen => {
+  return ({ samplerate }) => {
     const range = max - min;
-    return typeof frequency === 'number'
-      ? accum((frequency * range) / gen.samplerate, reset, { min, max })
-      : accum(
+    return isUgen(frequency)
+      ? accum(
         div(
           mul(frequency, range),
-          gen.samplerate
+          samplerate
         ),
         reset,
         { min, max }
-      );
+      )
+      : accum((<number>frequency * range) / samplerate, reset, { min, max });
   }
 }

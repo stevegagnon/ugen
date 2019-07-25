@@ -1,29 +1,28 @@
-import { Ugen } from '../ugen';
+import { isUgen, Ugen } from '../gen';
 
 export function wrap(
   a: number | Ugen,
   min: number | Ugen = 0,
   max: number | Ugen = 1
 ): Ugen {
-  return gen => {
-    const [_a, _min, _max] = gen.prepare(a, min, max);
-    const [_out] = gen.declare(_a);
-    let _diff;
+  return ({declare, every, code}) => {
+    const [out] = declare(a);
+    let diff;
 
     if (min === 0) {
-      _diff = _max;
-    } else if (isNaN(_min) || isNaN(_max)) {
-      _diff = `(${_max} - ${_min})`;
+      diff = max;
+    } else if (isUgen(min) || isUgen(max)) {
+      diff = code`(${max} - ${min})`;
     } else {
-      _diff = _max - _min;
+      diff = <number>max - <number>min;
     }
 
-    gen.every(1, `
-      ${_out} = ${_a};
-      if( ${_out} < ${_min} ) ${_out} += ${_diff}
-      else if( ${_out} > ${_max} ) ${_out} -= ${_diff}
+    every(1, code`
+      ${out} = ${a};
+      if( ${out} < ${min} ) ${out} += ${diff}
+      else if( ${out} > ${max} ) ${out} -= ${diff}
     `);
 
-    return _out;
+    return out;
   }
 }

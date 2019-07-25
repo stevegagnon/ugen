@@ -1,16 +1,15 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function gate(
   control: number | Ugen,
   input: number | Ugen,
   { count = 2 }: { count?: number }
 ): Ugen {
-  return gen => {
-    const [_control, _input] = gen.prepare(control, input);
-    const _outputs = gen.declare((new Array(count)).fill(0).map(e => 0));
+  return ({ join, declare, every, code }) => {
+    const outputs = declare((new Array(count)).fill(0).map(e => 0));
 
-    gen.every(1, `${_outputs}[${_control}] = ${_input}`);
+    every(1, code`[${join(',', outputs)}][${control}] = ${input}`);
 
-    return _outputs;
+    return outputs;
   }
 }

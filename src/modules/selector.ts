@@ -1,12 +1,10 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function selector(
   control: number | Ugen,
   ...inputs: (number | Ugen)[]
 ): Ugen {
-  return gen => {
-    const [_control] = gen.prepare(control);
-    const [_inputs] = gen.prepare(inputs);
-    return `(${_inputs}[${_control}])`;
+  return ({ code, join }) => {
+    return code`[${join(',', ...inputs)}][${control}]`;
   }
 }

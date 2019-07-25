@@ -1,9 +1,9 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 import { ssd } from './ssd';
 import { sub } from './arithmetic';
 
 export function delta(a: Ugen): Ugen {
-  return gen => {
+  return () => {
     return sub(a, ssd(a));
   }
 }

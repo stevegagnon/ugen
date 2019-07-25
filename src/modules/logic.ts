@@ -1,22 +1,19 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
-export function and(...args: (number | Ugen)[]): Ugen {
-  return gen => {
-    const [_a, _b] = gen.prepare(...args);
-    return `((${_a} !== 0 && ${_b} !== 0) | 0)`;
+export function and([a, b]: (number | Ugen)[]): Ugen {
+  return ({ code }) => {
+    return code`((${a} !== 0 && ${b} !== 0) | 0)`;
   }
 }
 
-export function bool(arg: number | Ugen): Ugen {
-  return gen => {
-    const [_input] = gen.prepare(arg);
-    return `(${_input} === 0 ? 0 : 1)`;
+export function bool(input: number | Ugen): Ugen {
+  return ({ code }) => {
+    return code`(${input} === 0 ? 0 : 1)`;
   }
 }
 
-export function not(arg: number | Ugen): Ugen {
-  return gen => {
-    const [_input] = gen.prepare(arg);
-    return `(${_input} === 0 ? 1 : 0)`;
+export function not(input: number | Ugen): Ugen {
+  return ({ code }) => {
+    return code`(${input} === 0 ? 1 : 0)`;
   }
 }

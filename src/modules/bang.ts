@@ -1,12 +1,12 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function bang(
   trigger,
   { min = 0, max = 1 }: { min?: number, max?: number }
 ): Ugen {
-  return gen => {
-    const [_current] = gen.declare(min);
-    trigger.on(`${_current} = ${max}`).delay(1, `${_current} = ${min}`);
-    return _current;
+  return ({declare, code}) => {
+    const [current] = declare(min);
+    trigger.on(code`${current} = ${max}`).delay(1, code`${current} = ${min}`);
+    return current;
   }
 }

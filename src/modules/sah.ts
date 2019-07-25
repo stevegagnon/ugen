@@ -1,21 +1,20 @@
-import { Ugen } from '../ugen';
+import { Ugen } from '../gen';
 
 export function sah(
   sample: number | Ugen,
   control: number | Ugen,
   threshold: number | Ugen = 0
 ): Ugen {
-  return gen => {
-    const [_sample, _control, _threshold] = gen.prepare(sample, control, threshold);
-    const [_held, _previous_control] = gen.declare(_sample, _threshold);
+  return ({ declare, code, every }) => {
+    const [held, previous_control] = declare(sample, threshold);
 
-    gen.every(1, `
-      if (${_control} > ${_threshold} && ${_previous_control} <= ${_threshold}) {
-        ${_held} = ${_sample};
+    every(1, code`
+      if (${control} > ${threshold} && ${previous_control} <= ${threshold}) {
+        ${held} = ${sample};
       }
-      ${_previous_control} = ${_control};
+      ${previous_control} = ${control};
     `);
 
-    return _held;
+    return held;
   }
 }

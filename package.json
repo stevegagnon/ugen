@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/postalrat/boatman#readme",
   "devDependencies": {
-    "parcel-bundler": "^1.11.0",
-    "typescript": "^3.3.3"
+    "parcel-bundler": "^1.12.3",
+    "typescript": "^3.5.3"
   }
 }

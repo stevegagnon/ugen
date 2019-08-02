@@ -10,7 +10,7 @@ export function delay(a: Ugen, size: number) {
             offset = alloc(size);
             every(1, code`${buffer}[${offset} + ${frame} % ${size}] = ${a}`);
           }
-          return code`${buffer}[${offset} + (${frame} - ${delay + 1}) % ${size}]`;
+          return code.memoize`${buffer}[${offset} + (${frame} - ${delay + 1}) % ${size}]`;
         } else {
           return a;
         }

@@ -3,7 +3,7 @@ import { isUgen, Ugen } from '../gen';
 function fn(fn: string) {
   return (a: number | Ugen): Ugen => {
     return ({ code }) => {
-      return isUgen(a) ? code`Math.${fn}(${a})` : Math[fn](<number>a);
+      return isUgen(a) ? code.memoize`Math.${fn}(${a})` : Math[fn](<number>a);
     }
   }
 }
@@ -11,7 +11,7 @@ function fn(fn: string) {
 function fn2(fn: string) {
   return (a: number | Ugen, b: number | Ugen): Ugen => {
     return ({ code }) => {
-      return isUgen(a) || isUgen(b) ? code`Math.${fn}(${a}, ${b})` : Math[fn](<number>a, <number>b);
+      return isUgen(a) || isUgen(b) ? code.memoize`Math.${fn}(${a}, ${b})` : Math[fn](<number>a, <number>b);
     }
   }
 }

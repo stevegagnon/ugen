@@ -2,16 +2,16 @@ import { Ugen } from '../gen';
 
 function fn1(op: string) {
   return ([a, b]: (number | Ugen)[]): Ugen => {
-    return ({code}) => {
-      return code`((${a} ${op} ${b}) | 0)`;
+    return ({ code }) => {
+      return code.memoize`((${a} ${op} ${b}) | 0)`;
     }
   }
 }
 
 function fn2(op: string) {
   return ([a, b]: (number | Ugen)[]): Ugen => {
-    return ({code}) => {
-      return code`(${a} ${op} ${b} ? ${a} : 0)`;
+    return ({ code }) => {
+      return code.memoize`(${a} ${op} ${b} ? ${a} : 0)`;
     }
   }
 }

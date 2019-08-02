@@ -14,7 +14,9 @@ function fn(op: string, reducer: (a: number, b: number) => number) {
       if (reduced !== null) {
         filtered.push(reduced);
       }
-      return code`( ${join(op, ...filtered)} )`;
+      //console.log(args, filtered);
+      
+      return code.memoize`( ${join(op, ...filtered)} )`;
     }
   };
 }

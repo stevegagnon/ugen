@@ -22,15 +22,17 @@ export function accum(
 
     if (isUgen(reset) || reset) {
       every(1, code`
-      if (${reset}) { ${accumulator} = ${min} } else {
-      ${accumulator} += ${increment};
-      ${wrap}
+      if (${reset}) {
+        ${accumulator} = ${min};
+      } else {
+        ${accumulator} += ${increment};
+        ${wrap};
       }
     `);
     } else {
       every(1, code`
       ${accumulator} += ${increment};
-      ${wrap}
+      ${wrap};
     `);
     }
 

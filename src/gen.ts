@@ -3,7 +3,7 @@ import { Trigger } from './trigger';
 export type Ugen = (gen: Gen) => any;
 
 export function isUgen(o) {
-  return !isNaN(o);
+  return typeof o === 'function';
 }
 
 export interface Gen {
@@ -11,6 +11,7 @@ export interface Gen {
   frame: Ugen,
   buffer: Ugen;
   input: Ugen,
+  output: Ugen | string,
   param(name: string, intial);
   prepare(...args);
   declare(...args);
@@ -19,8 +20,8 @@ export interface Gen {
   schedule(ahead, code);
   on(triggerName, code);
   trigger(name);
-  code(strings, ...exps);
   join(seperator, ...parts);
+  code: { (strings, ...exprs): unknown, memoize: (strings, ...exprs) => unknown };
 }
 
 export default function () {
@@ -43,7 +44,7 @@ export default function () {
       }
     }
     const name = `lbl_${labelIdx++}`;
-    const label = { ugen, name, value: ugen(createUgen(name)) };
+    const label = { ugen, name, value: ugen(root) };
     labels.push(label);
     return label.name;
   }
@@ -62,101 +63,116 @@ export default function () {
     } else {
       switch (typeof v) {
         case 'function':
-        case 'array': // example: modules/selector
+          _v = resolve(v(root));
+          break;
+        default:
+          _v = v;
+          break;
       }
     }
+
+    //console.log(v, _v);
 
     return _v;
   }
 
-  function createUgen(name?): Gen {
-    function code(strings: string[], ...exps: any[]) {
-      return gen => {
-        return strings.reduce((a, c, i) => {
-          const e = exps[i] || '';
-          return `${a}${c}${typeof e === 'function' ? e(gen) : e}`;
-        }, '');
-      }
+  function code(strings: string[], ...exprs: any[]) {
+    return () => {
+      return strings.reduce((a, c, i) => {
+        const expr = exprs[i] || '';
+        return `${a}${c}${resolve(expr)}`;
+      }, '');
     }
-
-    function param(name: string, defaultValue = 0) {
-      const label = {
-        ugen: () => defaultValue,
-        name: `param_${labelIdx++}`,
-        value: `parameters['${name}'].length === 1 ? parameters['${name}'][0] : parameters['${name}'][i]`
-      }
-      labels.push(label);
-      parameters.push({ name, defaultValue });
-      return label.name;
-    }
-
-    function prepare(...args) {
-      return args.map(arg => {
-        if (typeof arg === 'function') {
-          return createLabel(arg);
-        } else {
-          return arg;
-        }
-      });
-    }
-
-    function declare(...args) {
-      return args.map(arg => {
-        const label = `memory[${alloc(1)}]`;
-        onInit.push(`${label} = ${arg}`);
-        return label;
-      });
-    }
-
-    function every(frames, ...args) {
-      return args.map(arg => {
-        const exp = typeof arg === 'function' ? arg(createUgen()) : arg;
-        afterRender.push(frames === 1 ? exp : `if (this.frame % ${frames} === 0) { ${exp} }`);
-      });
-    }
-
-    function schedule(ahead: number, code: string) {
-      return `this.schedule(${ahead}, () => { ${code} })`;
-    }
-
-    function on(triggerName: string, code) {
-      onMessage.push(`
-          if (event.type === 'trigger' && event.name === '${triggerName}') {
-            ${code}
-          }
-        `);
-    }
-
-    function trigger(name: string) {
-      const trigger = new Trigger(name, createUgen('trigger'));
-      triggers[name] = trigger;
-      return trigger;
-    }
-
-    function join(seperator, ...parts) {
-      
-    }
-
-    return {
-      samplerate: 44100,
-      frame: undefined,
-      buffer: undefined,
-      input: undefined,
-      param,
-      prepare,
-      declare,
-      every,
-      schedule,
-      on,
-      trigger,
-      code,
-      alloc,
-      join
-    };
   }
 
+  code.memoize = function (strings: string[], ...exprs: any[]) {
+    return gen => {
+      return strings.reduce((a, c, i) => {
+        const expr = exprs[i] || '';
+        return `${a}${c}${typeof expr === 'function' ? expr(gen) : expr}`;
+      }, '');
+    }
+  };
+
+
+  function param(name: string, defaultValue = 0) {
+    const label = {
+      ugen: () => defaultValue,
+      name: `param_${labelIdx++}`,
+      value: `parameters['${name}'].length === 1 ? parameters['${name}'][0] : parameters['${name}'][i]`
+    }
+    labels.push(label);
+    parameters.push({ name, defaultValue });
+    return label.name;
+  }
+
+  function prepare(...args) {
+    return args.map(arg => {
+      if (typeof arg === 'function') {
+        return createLabel(arg);
+      } else {
+        return arg;
+      }
+    });
+  }
+
+  function declare(...args) {
+    return args.map(arg => {
+      const label = `memory[${alloc(1)}]`;
+      onInit.push(`${label} = ${arg}`);
+      return label;
+    });
+  }
+
+  function every(frames, ...args) {
+    return args.map(arg => {
+      const exp = typeof arg === 'function' ? arg(root) : arg;
+      afterRender.push(frames === 1 ? exp : `if (this.frame % ${frames} === 0) { ${exp} }`);
+    });
+  }
+
+  function schedule(ahead: number, code: string) {
+    return `this.schedule(${ahead}, () => { ${code} })`;
+  }
+
+  function on(triggerName: string, code) {
+    onMessage.push(`
+        if (event.type === 'trigger' && event.name === '${triggerName}') {
+          ${code}
+        }
+      `);
+  }
+
+  function trigger(name: string) {
+    const trigger = new Trigger(name, root);
+    triggers[name] = trigger;
+    return trigger;
+  }
+
+  function join(seperator, ...parts) {
+    return parts.map(part => resolve(part)).join(seperator);
+  }
+
+  const root = {
+    samplerate: 44100,
+    frame: undefined,
+    buffer: undefined,
+    input: undefined,
+    output: 'left[i] = right[i]',
+    param,
+    prepare,
+    declare,
+    every,
+    schedule,
+    on,
+    trigger,
+    code,
+    alloc,
+    join
+  };
+
   return {
-    createUgen,
+    root,
     onRender,
     beforeRender,
     onInit,

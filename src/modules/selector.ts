@@ -5,6 +5,6 @@ export function selector(
   ...inputs: (number | Ugen)[]
 ): Ugen {
   return ({ code, join }) => {
-    return code`[${join(',', ...inputs)}][${control}]`;
+    return code.memoize`[${join(',', ...inputs)}][${control}]`;
   }
 }

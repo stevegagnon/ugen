@@ -5,17 +5,17 @@ export default function (genlet) {
   const name = `worklet_${Math.random().toString(36).substring(7)}`;
   const gen = createGen();
 
-  const worker = genlet(Object.assign({},
+  genlet(Object.assign({
+    sys: {
+      samplerate: gen.root.samplerate
+    }
+  },
     ...Object.keys(modules).map(key => ({
       [key]: (...args) => {
-        return modules[key](...args)(gen.createUgen(key));
+        return modules[key](...args)(gen.root);
       }
     })))
   );
-
-  const root = gen.createUgen('root');
-
-  gen.onRender.push(`right[i] = left[i] = ${root.prepare(worker)};\n`);
 
   gen.beforeRender.push(...gen.labels.map(label => {
     return `let ${label.name} = ${label.value}`;
@@ -81,6 +81,13 @@ export default function (genlet) {
     );
   `;
 
+
+  console.log(
+    {
+      afterRender: gen.afterRender
+    },
+    gen.afterRender.join(';')
+  );
 
 
   const workletUrl = URL.createObjectURL(

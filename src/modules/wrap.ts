@@ -12,7 +12,7 @@ export function wrap(
     if (min === 0) {
       diff = max;
     } else if (isUgen(min) || isUgen(max)) {
-      diff = code`(${max} - ${min})`;
+      diff = code.memoize`(${max} - ${min})`;
     } else {
       diff = <number>max - <number>min;
     }
